@@ -16,7 +16,9 @@ import networkx as nx
 
 
 from benchmark_running import read_chain
-
+'''
+making historgram from a list of partitions 
+'''
 def count(x, visited_partitions):
 
     x_lens = np.sort([len(k) for k in x])
@@ -30,12 +32,17 @@ def count(x, visited_partitions):
     return count
 
 def make_histogram(A, visited_partitions):
+    #A is the list of all partitions,
     A_node_lists = [ set([frozenset(g.nodes()) for g in x]) for x in A]
     dictionary = {}
     for x in A_node_lists:
         dictionary[str(x)] = count(x,visited_partitions) / len(visited_partitions)
     return dictionary
 
+####################
+'''
+These are functions that translate the between the different kinds of outputs
+'''
 def dictionary_to_nodes(dictionary):
     #Takes dictionary stored partition and returns the list of nodes format
     node_lists = []
@@ -54,6 +61,7 @@ def dictionary_list_to_node_set(dictionary_list):
         list_of_partitions.append(dictionary_to_nodes(x))
     return list_of_partitions
 
+#####################
 
 def chain_test(grid_size, k_part, steps = 100):
     from naive_graph_partitions import k_connected_graph_partitions

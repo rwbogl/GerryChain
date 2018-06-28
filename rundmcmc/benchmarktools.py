@@ -99,6 +99,11 @@ def build_distance_matrix(partitions, metric = "information", p = 1):
                 M[i][j] = lp_distance(partitions[i], partitions[j],p)
     return M
  
+    
+######Converting data types:
+    
+#These s
+
 def subgraph_list_to_dictionary(subgraph):
     m = len(subgraph)
     node_lists = [g.nodes() for g in subgraph]
@@ -172,7 +177,7 @@ def testmds():
    # stress_test(A, M_A, h1, 2, 25)
    
 def testmds_boundary():
-    h1, A = chain_test((3,3),4, 1000)
+    h1, A = chain_test((3,3), 1000)
     dlist_A = partition_list_to_dictionary_list(A)
     M_A = build_distance_matrix(dlist_A)
     #spectral_plot(A, M_A, h1, 3)
@@ -238,6 +243,8 @@ def compare():
     S2 = support(h2)
     print(len(A), len(S1), len(S2), len(symdif(S1, S2)))
 
+##Size of support tools:
+    
 def support(histogram):
     support = []
     for x in histogram.keys():
@@ -260,5 +267,9 @@ def symdif(set1, set2):
 #########CLUSTERING:
     
 ##Spectral partitioning
+    
+
 
 #K medioids
+    
+###Distance 

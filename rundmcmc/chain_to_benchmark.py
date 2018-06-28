@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jun 28 10:57:56 2018
+
+@author: MGGG
+"""
+
+###All the tools to take the output of chain and make it useful:
+
 
 from rundmcmc.grid import Grid
 
@@ -7,8 +16,7 @@ from rundmcmc.validity import Validator, contiguous, no_vanishing_districts
 from rundmcmc.accept import always_accept
 import numpy as np
 
-def read_chain(sizes, iterations):
-  graph = Grid(sizes)
+def read_chain(graph, iterations):
   is_valid = Validator([contiguous,no_vanishing_districts])
   chain = MarkovChain(propose_random_flip, is_valid, always_accept, graph, total_steps = iterations)
   partitions = []

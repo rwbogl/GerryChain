@@ -200,6 +200,11 @@ def MH_step(G, T,e):
         
 ########Validation -- 
             
+       
+###Histogram creation tools
+           '''
+           everything should be converted to set of frozen sets for speed reasons
+           '''
 def count(x, visited_partitions):
 
     x_lens = np.sort([len(k) for k in x])
@@ -212,6 +217,7 @@ def count(x, visited_partitions):
             if x == sample_nodes:
                 count += 1
     return count
+
 
 def make_histogram(A, visited_partitions):
     A_node_lists = [ set([frozenset(g.nodes()) for g in x]) for x in A]
@@ -226,20 +232,30 @@ def subgraph_to_node(visited_partitions):
         partition_list.append(set([frozenset(g.nodes()) for g in partitions]))
         
     return partition_list
-
+##########################
+    
 def test(grid_size, k_part, steps = 100):
     from naive_graph_partitions import k_connected_graph_partitions
-    #k_part = 3
+    #k_part = 3 nnum partitions
     G = nx.grid_graph(grid_size)
     A = list(k_connected_graph_partitions(G, k_part))
+    
+    ##Tree walks:
     T = random_spanning_tree(G)
     e = list(T.edges())[0:k_part - 1]
     visited_partitions = []
     for i in range(steps):
         new = MH_step(G, T, e)
+        #This is the step that takes in the graph G, the spanning tree T, 
+        #and the list of edges e that we are currently planning to delete.
         T = new[0]
         e = new[1]
         visited_partitions.append(R(G,T,e))
+        
+        #R(emoval) is the function that returns the partition you get by removing e from T
+    ###
+    
+    ##Statistics from output from tree tools:
     visited_partitions_node_format = subgraph_to_node(visited_partitions)
     histogram = make_histogram(A, visited_partitions_node_format)
     total_variation = 0

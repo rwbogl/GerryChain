@@ -79,6 +79,11 @@ def chain_test(grid_size, k_part, steps = 100):
     print("total variation", total_variation)
     return [histogram, A, partitions]
 
+def chain_walk(grid_size, k_part, steps = 100):
+    k_part = 4
+    grid = Grid(grid_size)
+    partitions = read_chain(grid, steps)
+    return partitions
 #new = chain_test(3,3)
     
 #chain_test((3,3),4)

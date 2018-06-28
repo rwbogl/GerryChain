@@ -271,3 +271,19 @@ def TV(p,q):
         total_variation += np.abs(p[k] - q[k])
     return total_variation
 #h1, A, partitions = test([2,3], 3)
+    
+def tree_walk(grid_size, k_part, steps = 100):
+    G = nx.grid_graph(grid_size)
+    ##Tree walks:
+    T = random_spanning_tree(G)
+    e = list(T.edges())[0:k_part - 1]
+    visited_partitions = []
+    for i in range(steps):
+        new = MH_step(G, T, e)
+        #This is the step that takes in the graph G, the spanning tree T, 
+        #and the list of edges e that we are currently planning to delete.
+        T = new[0]
+        e = new[1]
+        visited_partitions.append(R(G,T,e))
+        
+    return visited_partitions

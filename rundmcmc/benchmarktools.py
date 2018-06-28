@@ -22,6 +22,8 @@ import treetools
 from matplotlib import pyplot as plt
 
 import benchmark_tests
+import metagraph_distances as md
+import chain_to_benchmark as cb
 
 def common_refinement(d1,d2):
     if set(d1.keys()) != set(d2.keys()):
@@ -374,6 +376,9 @@ def symdif(set1, set2):
 #K medioids
     
 ###Distances
+    
+
+###Comparing step sizes...
 def compare_jump_histograms():
     h1, A, partitions = test([3,3], 4,300)
     path_indices_tree = make_path_indices(treetools.subgraph_to_node(A), treetools.subgraph_to_node(partitions))
@@ -393,3 +398,25 @@ def step_length_tally(matrix, path):
     for t in range(len(path) - 1):
         step_sizes.append( matrix[path[t]][path[t+1]])
     return step_sizes
+
+#But maybe tree takes a bunch of big steps around the same general spot as boundary
+###Big cluster vs. many bulbs with thin paths connecting them...
+
+#So try computing matrix of pairwise distances of some subsample of the founds ... but this needs to be done
+    #on a MUCH larger space. in 3x3 all the partitions are enumerated and its small of large numbers
+    #it doesn't require enumeration tough, s o
+    
+#
+def blobs():
+    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([10,10], 4, 20000))
+    tree_partitions_cleaned = list(set([frozenset(x) for x in tree_partitions]))
+    print(len(tree_partitions_cleaned))
+    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((10,10), 4, 300))
+    boundary_partitions_cleaned = list(set([frozenset(x) for x in boundary_partitions]))
+    print("building")
+    D = cb.partitions_to_distance(tree_partitions, md.shared_information_distance)
+    print("next")
+    E = cb.partitions_to_distance(boundary_partitions, md.shared_information_distance)
+    print("q")
+    plt.hist(D.flatten(),color = 'r')
+    plt.hist(E.flatten(),color = 'b')

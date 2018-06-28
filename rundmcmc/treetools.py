@@ -249,6 +249,7 @@ def test(grid_size, k_part, steps = 100):
     return [histogram, A, visited_partitions]
      
 def TV(p,q):
+#test comment
     total_variation = 0
     for k in p.keys():
         total_variation += np.abs(p[k] - q[k])

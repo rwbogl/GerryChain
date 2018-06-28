@@ -57,6 +57,8 @@ def partitions_to_distance(partition_list, distance_function):
     #Partition_list is a list of set partitions
     if type(partition_list[0]) == set:
         plan = partition_list
+    if type(partition_list[0]) == frozenset:
+        plan = partition_list
     if type(partition_list[0]) == dict:
         plan = dictionary_list_to_sets_list(partition_list)
 

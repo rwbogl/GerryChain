@@ -181,30 +181,31 @@ def propose_step(G,T):
     
 
 
-def MH_step(G, T,e):
+def MH_step(G, T,e, MH = True):
     n = len(e)
     U = propose_step(G,T)
     e2 = random.sample(list(U.edges()), n)
-    current_score = score_tree_edges_pair(G,T,e)
-    new_score = score_tree_edges_pair(G, U, e2)
-    if new_score > current_score:
+    if MH == True:
+        current_score = score_tree_edges_pair(G,T,e)
+        new_score = score_tree_edges_pair(G, U, e2)
+        if new_score > current_score:
+            return [U,e2]
+        else:
+           p = np.exp(new_score - current_score)
+           a = np.random.uniform(0,1)
+           if a < p:
+               return [U,e2]
+           else:
+               return [T,e]
+    if MH == False:
         return [U,e2]
-    else:
-       p = np.exp(new_score - current_score)
-       a = np.random.uniform(0,1)
-       if a < p:
-           return [U,e2]
-       else:
-           return [T,e]
 
         
 ########Validation -- 
             
        
 ###Histogram creation tools
-           '''
-           everything should be converted to set of frozen sets for speed reasons
-           '''
+
 def count(x, visited_partitions):
 
     x_lens = np.sort([len(k) for k in x])
@@ -272,14 +273,14 @@ def TV(p,q):
     return total_variation
 #h1, A, partitions = test([2,3], 3)
     
-def tree_walk(grid_size, k_part, steps = 100):
+def tree_walk(grid_size, k_part, steps = 100, MH = True):
     G = nx.grid_graph(grid_size)
     ##Tree walks:
     T = random_spanning_tree(G)
     e = list(T.edges())[0:k_part - 1]
     visited_partitions = []
     for i in range(steps):
-        new = MH_step(G, T, e)
+        new = MH_step(G, T, e, MH)
         #This is the step that takes in the graph G, the spanning tree T, 
         #and the list of edges e that we are currently planning to delete.
         T = new[0]

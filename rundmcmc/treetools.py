@@ -204,8 +204,8 @@ def count(x, visited_partitions):
 
     x_lens = np.sort([len(k) for k in x])
     count = 0
-    for i in visited_partitions:
-        sample_nodes = set([frozenset(g.nodes()) for g in i])
+    for sample_nodes in visited_partitions:
+        #sample_nodes = set([frozenset(g.nodes()) for g in i])
         sample_lens = np.sort([len(k) for k in sample_nodes])
         #if (x_lens == sample_lens).all():
         if np.array_equal(x_lens , sample_lens):
@@ -220,6 +220,13 @@ def make_histogram(A, visited_partitions):
         dictionary[str(x)] = count(x,visited_partitions) / len(visited_partitions)
     return dictionary
         
+def subgraph_to_node(visited_partitions):
+    partition_list  = []
+    for partitions in visited_partitions:
+        partition_list.append(set([frozenset(g.nodes()) for g in partitions]))
+        
+    return partition_list
+
 def test(grid_size, k_part, steps = 100):
     from naive_graph_partitions import k_connected_graph_partitions
     #k_part = 3
@@ -228,12 +235,13 @@ def test(grid_size, k_part, steps = 100):
     T = random_spanning_tree(G)
     e = list(T.edges())[0:k_part - 1]
     visited_partitions = []
-    for i in range(100):
+    for i in range(steps):
         new = MH_step(G, T, e)
         T = new[0]
         e = new[1]
         visited_partitions.append(R(G,T,e))
-    histogram = make_histogram(A, visited_partitions)
+    visited_partitions_node_format = subgraph_to_node(visited_partitions)
+    histogram = make_histogram(A, visited_partitions_node_format)
     total_variation = 0
     for k in histogram.keys():
         total_variation += np.abs( histogram[k] - 1 / len(A))

@@ -14,8 +14,11 @@ from matplotlib.collections import LineCollection
 from sklearn import manifold
 from sklearn.decomposition import PCA
 
-
+from benchmark_tests import chain_test
 from scipy.stats import gaussian_kde
+
+from treetools import test
+
 def common_refinement(d1,d2):
     if set(d1.keys()) != set(d2.keys()):
         return "Keys do not match!"
@@ -162,11 +165,19 @@ def testmds():
     #To see the stress function -- chcek out stress test. It doesn't seem to improve by increaseing dimension.
     #Probably this means that this space cannot be easily embedded. Maybe try hamming?
     from treetools import test
-    h1, A, partitions = test([3,3], 3,1000)
+    h1, A, partitions = test([3,3], 4,2000)
     dlist_A = partition_list_to_dictionary_list(A)
     M_A = build_distance_matrix(dlist_A)
     make_mds(A, M_A, h1)
    # stress_test(A, M_A, h1, 2, 25)
+   
+def testmds_boundary():
+    h1, A = chain_test((3,3),4, 1000)
+    dlist_A = partition_list_to_dictionary_list(A)
+    M_A = build_distance_matrix(dlist_A)
+    #spectral_plot(A, M_A, h1, 3)
+    make_mds(A, M_A, h1)
+    
     
 #testmds()
     
@@ -196,13 +207,58 @@ def spectral_plot(A, M_A, h1, n = 2):
 
 def test_spectral():
     #it would be great to have a tool that lets us see which partitions are which by hovering over them
-    from treetools import test
-    h1, A, partitions = test([3,3], 3,50)
+    h1, A, partitions = test([3,3], 4,1000)
     dlist_A = partition_list_to_dictionary_list(A)
     M_A = build_distance_matrix(dlist_A)
+    #spectral_plot(A, M_A, h1, 3)
     spectral_plot(A, M_A, h1, 3)
-    spectral_plot(A, )
+    
+    #non-empty??
+    #How is the support changing as the number of steps increases..
+    #Flagify the complex
+    
+def test_spectral_boundary():
+    h1, A, parts = chain_test((3,3),4, 1000)
+    dlist_A = partition_list_to_dictionary_list(A)
+    M_A = build_distance_matrix(dlist_A)
+    #spectral_plot(A, M_A, h1, 3)
+    spectral_plot(A, M_A, h1, 3)
+    
+def compare():
+    #Need to start hard coding the set of partitions!
+    h1, A, partitions_1 = chain_test((3,3),4, 200)
+    dlist_A = partition_list_to_dictionary_list(A)
+    M_A = build_distance_matrix(dlist_A)
+    spectral_plot(A, M_A, h1, 3) 
+    
+    h2, A, partitions_2 = test([3,3], 4,200)
+    dlist_A = partition_list_to_dictionary_list(A)
+    spectral_plot(A, M_A, h1, 3)
+    S1 = support(h1)
+    S2 = support(h2)
+    print(len(A), len(S1), len(S2), len(symdif(S1, S2)))
+
+def support(histogram):
+    support = []
+    for x in histogram.keys():
+        if histogram[x] != 0:
+            support.append(x)
+    return support
+
+def symdif(set1, set2):
+    ourset = set([])
+    for x in set1:
+        if x not in set2:
+            ourset.add(x)
+    for x in set2:
+        if x not in set1:
+            ourset.add(x)
+    return ourset
+#test_spectral_boundary()
 #test_spectral() 
+    
+#########CLUSTERING:
+    
 ##Spectral partitioning
 
 #K medioids

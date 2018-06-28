@@ -80,3 +80,5 @@ def chain_test(grid_size, k_part, steps = 100):
     return [histogram, A, partitions]
 
 #new = chain_test(3,3)
+    
+#chain_test((3,3),4)

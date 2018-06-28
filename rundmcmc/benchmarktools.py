@@ -177,7 +177,7 @@ def testmds():
    # stress_test(A, M_A, h1, 2, 25)
    
 def testmds_boundary():
-    h1, A = chain_test((3,3), 1000)
+    h1, A, partitions = chain_test((3,3), 4)
     dlist_A = partition_list_to_dictionary_list(A)
     M_A = build_distance_matrix(dlist_A)
     #spectral_plot(A, M_A, h1, 3)

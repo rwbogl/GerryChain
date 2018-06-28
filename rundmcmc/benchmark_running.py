@@ -7,8 +7,7 @@ from rundmcmc.validity import Validator, contiguous, no_vanishing_districts
 from rundmcmc.accept import always_accept
 import numpy as np
 
-def read_chain(sizes, iterations):
-  graph = Grid(sizes)
+def read_chain(graph, iterations):
   is_valid = Validator([contiguous,no_vanishing_districts])
   chain = MarkovChain(propose_random_flip, is_valid, always_accept, graph, total_steps = iterations)
   partitions = []

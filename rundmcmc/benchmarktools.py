@@ -18,6 +18,10 @@ from benchmark_tests import chain_test
 from scipy.stats import gaussian_kde
 
 from treetools import test
+import treetools
+from matplotlib import pyplot as plt
+
+import benchmark_tests
 
 def common_refinement(d1,d2):
     if set(d1.keys()) != set(d2.keys()):
@@ -124,7 +128,7 @@ def partition_list_to_dictionary_list(partitions):
 
 ##Multi-Dimensional scaling
 
-def make_mds(A, M_A, h1, dim = 2):
+def make_mds_histogram(A, M_A, h1, dim = 2):
     #A is the ground set of partitions
     #M_A is the distance matrix
     #h1 is the histogram (labeled by A_node_lists -- below) that tells us the heat map
@@ -134,7 +138,7 @@ def make_mds(A, M_A, h1, dim = 2):
         color_list.append(h1[str(x)])
     z = gaussian_kde(color_list)(color_list)
     
-    similariaties = M_A
+    similariaties = np.exp(M_A)
     seed = np.random.RandomState(seed=3)
     
     mds = manifold.MDS(n_components=2, max_iter=3000, eps=1e-9, random_state=seed,
@@ -152,6 +156,33 @@ def make_mds(A, M_A, h1, dim = 2):
     plt.scatter(pos[:, 0], pos[:, 1], c=z, s=s, lw=0)    
     plt.show()
     
+
+def make_mds_path(A, M_A, path, dim = 2):
+    #A is the ground set of partitions
+    #M_A is the distance matrix
+    #path is path of indices, organized ot correspond to the indices of hte columns of M_A
+    similariaties = np.exp(M_A)
+    seed = np.random.RandomState(seed=3)
+    
+    mds = manifold.MDS(n_components=2, max_iter=3000, eps=1e-9, random_state=seed,
+                       dissimilarity="precomputed", n_jobs=1)
+    
+    mds.fit(similariaties)
+    pos = mds.embedding_
+    # Rotate the data
+    clf = PCA(n_components=2)    
+    pos = clf.fit_transform(pos)
+    
+    s = 100
+    
+    plt.scatter(pos[:, 0], pos[:, 1], s=s, lw=0)
+    
+    for t in range(len(path) -1):
+        #print( pos[path[t]], pos[path[t+1]])
+        plt.plot( [pos[path[t]][0], pos[path[t+1]][0]],
+                 [pos[path[t]][1], pos[path[t+1]][1]], 'r', lw = M_A[ path[t]][ path[t+1]]  )
+    plt.show()
+    
 def stress_test(A, M_A, h1, low_dim = 2, high_dim = 10):
     stress_list = []
     similariaties = M_A
@@ -166,24 +197,47 @@ def stress_test(A, M_A, h1, low_dim = 2, high_dim = 10):
     plt.plot(stress_list)
     plt.show()
     
-def testmds():
+def testmds_histogram():
     #To see the stress function -- chcek out stress test. It doesn't seem to improve by increaseing dimension.
     #Probably this means that this space cannot be easily embedded. Maybe try hamming?
     from treetools import test
-    h1, A, partitions = test([3,3], 4,2000)
+    h1, A, partitions = test([3,3], 4,300)
     dlist_A = partition_list_to_dictionary_list(A)
     M_A = build_distance_matrix(dlist_A)
-    make_mds(A, M_A, h1)
+    make_mds_histogram(A, M_A, h1)
    # stress_test(A, M_A, h1, 2, 25)
    
-def testmds_boundary():
-    h1, A, partitions = chain_test((3,3), 4)
+def testmds_boundary_histogram():
+    h1, A, partitions = chain_test((3,3), 4,300)
     dlist_A = partition_list_to_dictionary_list(A)
     M_A = build_distance_matrix(dlist_A)
     #spectral_plot(A, M_A, h1, 3)
-    make_mds(A, M_A, h1)
+    make_mds_histogram(A, M_A, h1)
     
+def testmds_walk():
+    from treetools import test
+    h1, A, partitions = test([3,3], 4,300)
+    path_indices = make_path_indices(treetools.subgraph_to_node(A), treetools.subgraph_to_node(partitions))
+    dlist_A = partition_list_to_dictionary_list(A)
+    M_A = build_distance_matrix(dlist_A)
+    make_mds_path(A, M_A, path_indices)
     
+def testmds_boundary_walk():
+    from treetools import test
+    h1, A, partitions = chain_test([3,3], 4,300)
+    path_indices = make_path_indices(treetools.subgraph_to_node(A), benchmark_tests.dictionary_list_to_node_set(partitions))
+    dlist_A = partition_list_to_dictionary_list(A)
+    M_A = build_distance_matrix(dlist_A)
+    make_mds_path(A, M_A, path_indices)
+    
+def make_path_indices(ground_set, path):
+    #Takes a walk over an indexed ground set (list), and returns the list of indices...
+    indices = []
+    for x in path:
+        indices.append(ground_set.index(x))
+    return indices
+    
+##SHould the conclusion from this be that the mds embedding is so bad that it's pointless ot use it? 
 #testmds()
     
 ##########################################################
@@ -209,6 +263,38 @@ def spectral_plot(A, M_A, h1, n = 2):
         fig = plt.figure()
         ax = fig.add_subplot(111,projection='3d')
         ax.scatter(Y[:,0], Y[:,1], Y[:,2],  c = z)
+        
+def spectral_plot_walk(A, M_A, path, n = 2):
+    
+    color_list = []
+    A_node_lists = [ set([frozenset(g.nodes()) for g in x]) for x in A]
+    for x in A_node_lists:
+        color_list.append(h1[str(x)])
+    z = gaussian_kde(color_list)(color_list)
+    
+    se = manifold.SpectralEmbedding(n_components = 3, affinity = 'precomputed')
+    Y = se.fit_transform(M_A)
+    if n == 2:
+        import matplotlib.pyplot as plt
+        plt.scatter(Y[:, 0], Y[:, 1], c=z)
+        plt.show()
+        pos = Y
+        for t in range(len(path) -1):
+            #print( pos[path[t]], pos[path[t+1]])
+            plt.plot( [pos[path[t]][0], pos[path[t+1]][0]],
+                     [pos[path[t]][1], pos[path[t+1]][1]], 'r', lw = M_A[ path[t]][ path[t+1]]  )
+    if n == 3:
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import Axes3D
+        fig = plt.figure()
+        ax = fig.add_subplot(111,projection='3d')
+        ax.scatter(Y[:,0], Y[:,1], Y[:,2],  c = z)
+        pos = Y
+        for t in range(len(path) -1):
+            #print( pos[path[t]], pos[path[t+1]])
+            ax.plot( [pos[path[t]][0], pos[path[t+1]][0]],
+                     [pos[path[t]][1], pos[path[t+1]][1]], [pos[path[t]][2], pos[path[t+1]][2]], 'r', lw = M_A[ path[t]][ path[t+1]]  )
+
 
 def test_spectral():
     #it would be great to have a tool that lets us see which partitions are which by hovering over them
@@ -218,6 +304,21 @@ def test_spectral():
     #spectral_plot(A, M_A, h1, 3)
     spectral_plot(A, M_A, h1, 3)
     
+def test_spectral_walk():
+    from treetools import test
+    h1, A, partitions = test([3,3], 4,300)
+    path_indices = make_path_indices(treetools.subgraph_to_node(A), treetools.subgraph_to_node(partitions))
+    dlist_A = partition_list_to_dictionary_list(A)
+    M_A = build_distance_matrix(dlist_A)
+    spectral_plot_walk(A, M_A, path_indices)
+    
+def test_spectral_walk_boundary():
+    from treetools import test
+    h1, A, partitions = chain_test([3,3], 4,300)
+    path_indices = make_path_indices(treetools.subgraph_to_node(A), benchmark_tests.dictionary_list_to_node_set(partitions))
+    dlist_A = partition_list_to_dictionary_list(A)
+    M_A = build_distance_matrix(dlist_A)
+    spectral_plot_walk(A, M_A, path_indices,3)
     #non-empty??
     #How is the support changing as the number of steps increases..
     #Flagify the complex
@@ -272,4 +373,23 @@ def symdif(set1, set2):
 
 #K medioids
     
-###Distance 
+###Distances
+def compare_jump_histograms():
+    h1, A, partitions = test([3,3], 4,300)
+    path_indices_tree = make_path_indices(treetools.subgraph_to_node(A), treetools.subgraph_to_node(partitions))
+    dlist_A = partition_list_to_dictionary_list(A)
+    M_A = build_distance_matrix(dlist_A)
+    h1, B, partitions = chain_test([3,3], 4,300)
+    path_indices_boundary = make_path_indices(treetools.subgraph_to_node(A), benchmark_tests.dictionary_list_to_node_set(partitions))
+    boundary_step_sizes = step_length_tally(M_A, path_indices_boundary)
+    tree_step_sizes = step_length_tally(M_A, path_indices_tree)
+    tree_cleaned = [x for x in tree_step_sizes if x != 0]
+    boundary_cleaned = [x for x in boundary_step_sizes if x != 0]
+    plt.hist(tree_cleaned)
+    plt.hist(boundary_cleaned)
+    
+def step_length_tally(matrix, path):
+    step_sizes = []
+    for t in range(len(path) - 1):
+        step_sizes.append( matrix[path[t]][path[t+1]])
+    return step_sizes

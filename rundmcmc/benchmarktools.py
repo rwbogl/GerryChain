@@ -408,15 +408,15 @@ def step_length_tally(matrix, path):
     
 #
 def blobs():
-    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([20,20], 4, 3000, False))
+    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([50,50], 4, 6000, False))
     tree_partitions_cleaned = list(set([frozenset(x) for x in tree_partitions]))
     print(len(tree_partitions_cleaned))
-    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((20,20), 4, 3000))
+    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((50,50), 4, 6000))
     boundary_partitions_cleaned = list(set([frozenset(x) for x in boundary_partitions]))
     print("building")
-    D = cb.partitions_to_distance(tree_partitions_cleaned, md.shared_information_distance)
+    tree_matrix = cb.partitions_to_distance(tree_partitions_cleaned, md.shared_information_distance)
     print("next")
-    E = cb.partitions_to_distance(boundary_partitions_cleaned, md.shared_information_distance)
+    boundary_matrix = cb.partitions_to_distance(boundary_partitions_cleaned, md.shared_information_distance)
     print("q")
-    plt.hist(D.flatten(),color = 'r')
-    plt.hist(E.flatten(),color = 'b')
+    plt.hist(tree_matrix.flatten(),color = 'g')
+    plt.hist(boundary_matrix.flatten(),color = 'b')

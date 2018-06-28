@@ -318,7 +318,7 @@ def test_spectral_walk_boundary():
     path_indices = make_path_indices(treetools.subgraph_to_node(A), benchmark_tests.dictionary_list_to_node_set(partitions))
     dlist_A = partition_list_to_dictionary_list(A)
     M_A = build_distance_matrix(dlist_A)
-    spectral_plot_walk(A, M_A, path_indices,2)
+    spectral_plot_walk(A, M_A, path_indices,3)
     #non-empty??
     #How is the support changing as the number of steps increases..
     #Flagify the complex
@@ -373,4 +373,23 @@ def symdif(set1, set2):
 
 #K medioids
     
-###Distance 
+###Distances
+def compare_jump_histograms():
+    h1, A, partitions = test([3,3], 4,300)
+    path_indices_tree = make_path_indices(treetools.subgraph_to_node(A), treetools.subgraph_to_node(partitions))
+    dlist_A = partition_list_to_dictionary_list(A)
+    M_A = build_distance_matrix(dlist_A)
+    h1, B, partitions = chain_test([3,3], 4,300)
+    path_indices_boundary = make_path_indices(treetools.subgraph_to_node(A), benchmark_tests.dictionary_list_to_node_set(partitions))
+    boundary_step_sizes = step_length_tally(M_A, path_indices_boundary)
+    tree_step_sizes = step_length_tally(M_A, path_indices_tree)
+    tree_cleaned = [x for x in tree_step_sizes if x != 0]
+    boundary_cleaned = [x for x in boundary_step_sizes if x != 0]
+    plt.hist(tree_cleaned)
+    plt.hist(boundary_cleaned)
+    
+def step_length_tally(matrix, path):
+    step_sizes = []
+    for t in range(len(path) - 1):
+        step_sizes.append( matrix[path[t]][path[t+1]])
+    return step_sizes

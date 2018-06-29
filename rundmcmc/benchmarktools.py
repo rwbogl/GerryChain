@@ -266,7 +266,7 @@ def spectral_plot(A, M_A, h1, n = 2):
         ax = fig.add_subplot(111,projection='3d')
         ax.scatter(Y[:,0], Y[:,1], Y[:,2],  c = z)
         
-def spectral_plot_walk(A, M_A, path, n = 2):
+def spectral_plot_walk(A, h1, M_A, path, n = 2):
     
     color_list = []
     A_node_lists = [ set([frozenset(g.nodes()) for g in x]) for x in A]
@@ -312,7 +312,7 @@ def test_spectral_walk():
     path_indices = make_path_indices(treetools.subgraph_to_node(A), treetools.subgraph_to_node(partitions))
     dlist_A = partition_list_to_dictionary_list(A)
     M_A = build_distance_matrix(dlist_A)
-    spectral_plot_walk(A, M_A, path_indices)
+    spectral_plot_walk(A, h1, M_A, path_indices)
     
 def test_spectral_walk_boundary():
     from treetools import test
@@ -320,7 +320,7 @@ def test_spectral_walk_boundary():
     path_indices = make_path_indices(treetools.subgraph_to_node(A), benchmark_tests.dictionary_list_to_node_set(partitions))
     dlist_A = partition_list_to_dictionary_list(A)
     M_A = build_distance_matrix(dlist_A)
-    spectral_plot_walk(A, M_A, path_indices,3)
+    spectral_plot_walk(A, h1, M_A, path_indices,3)
     #non-empty??
     #How is the support changing as the number of steps increases..
     #Flagify the complex
@@ -411,7 +411,7 @@ def step_length_tally(matrix, path):
     
 #
 def blobs():
-    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([4,4], 4, 100 , True, False))
+    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([4,4], 4, 1000 , True, True))
     tree_partitions_cleaned = list(set([frozenset(x) for x in tree_partitions]))
     print(len(tree_partitions_cleaned))
     boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((20,20), 4, 3000))

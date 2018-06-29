@@ -402,16 +402,19 @@ def step_length_tally(matrix, path):
 #But maybe tree takes a bunch of big steps around the same general spot as boundary
 ###Big cluster vs. many bulbs with thin paths connecting them...
 
+##When we DON'T force the edge chosen to be the best for equal size, then we end up with 
+    #one big piece in general, and all such partitions are very close to eachother! This explains
+    #why the pairwaise distances where much closer.
 #So try computing matrix of pairwise distances of some subsample of the founds ... but this needs to be done
     #on a MUCH larger space. in 3x3 all the partitions are enumerated and its small of large numbers
     #it doesn't require enumeration tough, s o
     
 #
 def blobs():
-    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([50,50], 4, 6000, False))
+    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([20,20], 4, 3000 , True, False))
     tree_partitions_cleaned = list(set([frozenset(x) for x in tree_partitions]))
     print(len(tree_partitions_cleaned))
-    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((50,50), 4, 6000))
+    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((20,20), 4, 3000))
     boundary_partitions_cleaned = list(set([frozenset(x) for x in boundary_partitions]))
     print("building")
     tree_matrix = cb.partitions_to_distance(tree_partitions_cleaned, md.shared_information_distance)
@@ -420,3 +423,6 @@ def blobs():
     print("q")
     plt.hist(tree_matrix.flatten(),color = 'g')
     plt.hist(boundary_matrix.flatten(),color = 'b')
+    
+    #TODO -- make a script that automates this and makes a folder with all the images and data and info about 
+    #the stuf...

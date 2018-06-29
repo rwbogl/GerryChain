@@ -179,12 +179,34 @@ def propose_step(G,T):
 #    print(U.edges())
     return U
     
+def best_edge_for_equipartition(G,T):
+    list_of_edges = list(T.edges())
+    best = 0
+    candidate = 0
+    for e in list_of_edges:
+        score = equi_score_tree_edge_pair(G,T,e)
+        if score > best:
+            #print(best)
+            best = score
+            candidate = e
+    return [candidate, best]
 
+def equi_score_tree_edge_pair(G,T,e):
+    T.remove_edges_from([e])
+    components = list(nx.connected_components(T))
+    T.add_edges_from([e])
+    A = len(components[0])
+    B = len(components[1])
+    x =  np.min([A / (A + B), B / (A + B)])
+    return x
 
-def MH_step(G, T,e, MH = True):
+def MH_step(G, T,e, equi = False,  MH = True):
     n = len(e)
     U = propose_step(G,T)
-    e2 = random.sample(list(U.edges()), n)
+    if equi == False:
+        e2 = random.choice(list(U.edges()))
+    if equi == True:
+        e2 = best_edge_for_equipartition(G,U)[0]
     if MH == True:
         current_score = score_tree_edges_pair(G,T,e)
         new_score = score_tree_edges_pair(G, U, e2)
@@ -273,14 +295,14 @@ def TV(p,q):
     return total_variation
 #h1, A, partitions = test([2,3], 3)
     
-def tree_walk(grid_size, k_part, steps = 100, MH = True):
+def tree_walk(grid_size, k_part, steps = 100, MH = True, equi = False):
     G = nx.grid_graph(grid_size)
     ##Tree walks:
     T = random_spanning_tree(G)
     e = list(T.edges())[0:k_part - 1]
     visited_partitions = []
     for i in range(steps):
-        new = MH_step(G, T, e, MH)
+        new = MH_step(G, T, e, equi, MH)
         #This is the step that takes in the graph G, the spanning tree T, 
         #and the list of edges e that we are currently planning to delete.
         T = new[0]

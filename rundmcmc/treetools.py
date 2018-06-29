@@ -7,7 +7,7 @@ Created on Tue Jun 26 12:01:21 2018
 
 import networkx as nx
 import random
-
+import itertools
 import numpy as np
 import scipy.linalg
 from scipy.sparse import csc_matrix
@@ -139,6 +139,14 @@ def R(G,T,edge_list):
     T.add_edges_from(edge_list)
     subgraphs = [nx.induced_subgraph(G, A) for A in components]
     return subgraphs
+
+def R_all(G,T,n):
+    T_edges = set(T.edges())
+    partitions = []
+
+    for e in itertools.combinations(T_edges, n):
+        partitions.append(R(G,T,list(e)))
+    return partitions
 #
 #def best_edge_for_equipartition(G,T):
 #    list_of_edges = list(T.edges())
@@ -257,7 +265,7 @@ def subgraph_to_node(visited_partitions):
     return partition_list
 ##########################
     
-def test(grid_size, k_part, steps = 100):
+def test(grid_size, k_part, steps = 100, equi = False, MH = True):
     from naive_graph_partitions import k_connected_graph_partitions
     #k_part = 3 nnum partitions
     G = nx.grid_graph(grid_size)
@@ -268,7 +276,7 @@ def test(grid_size, k_part, steps = 100):
     e = list(T.edges())[0:k_part - 1]
     visited_partitions = []
     for i in range(steps):
-        new = MH_step(G, T, e)
+        new = MH_step(G, T, e, equi, MH)
         #This is the step that takes in the graph G, the spanning tree T, 
         #and the list of edges e that we are currently planning to delete.
         T = new[0]
@@ -295,18 +303,22 @@ def TV(p,q):
     return total_variation
 #h1, A, partitions = test([2,3], 3)
     
-def tree_walk(grid_size, k_part, steps = 100, MH = True, equi = False):
+def tree_walk(grid_size, k_part, steps = 100, MH = True, get_all = True):
     G = nx.grid_graph(grid_size)
     ##Tree walks:
     T = random_spanning_tree(G)
     e = list(T.edges())[0:k_part - 1]
     visited_partitions = []
     for i in range(steps):
-        new = MH_step(G, T, e)
+        new = MH_step(G, T, e, False, MH)
         #This is the step that takes in the graph G, the spanning tree T, 
         #and the list of edges e that we are currently planning to delete.
         T = new[0]
         e = new[1]
-        visited_partitions.append(R(G,T,e))
+        if get_all == False:
+            visited_partitions.append(R(G,T))
+        if get_all == True:
+            T = random_spanning_tree(G)
+            visited_partitions += R_all(G,T, k_part)
         
     return visited_partitions

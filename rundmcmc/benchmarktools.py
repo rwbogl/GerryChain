@@ -300,7 +300,7 @@ def spectral_plot_walk(A, h1, M_A, path, n = 2):
 
 def test_spectral():
     #it would be great to have a tool that lets us see which partitions are which by hovering over them
-    h1, A, partitions = test([3,3], 4,1000)
+    h1, A, partitions = test([3,3], 4,300)
     dlist_A = partition_list_to_dictionary_list(A)
     M_A = build_distance_matrix(dlist_A)
     #spectral_plot(A, M_A, h1, 3)
@@ -308,15 +308,15 @@ def test_spectral():
     
 def test_spectral_walk():
     from treetools import test
-    h1, A, partitions = test([3,3], 4,300)
+    h1, A, partitions = test([3,3], 4,100, False, False)
     path_indices = make_path_indices(treetools.subgraph_to_node(A), treetools.subgraph_to_node(partitions))
     dlist_A = partition_list_to_dictionary_list(A)
     M_A = build_distance_matrix(dlist_A)
-    spectral_plot_walk(A, h1, M_A, path_indices)
+    spectral_plot_walk(A, h1, M_A, path_indices,3)
     
 def test_spectral_walk_boundary():
     from treetools import test
-    h1, A, partitions = chain_test([3,3], 4,300)
+    h1, A, partitions = chain_test([3,3], 4,100)
     path_indices = make_path_indices(treetools.subgraph_to_node(A), benchmark_tests.dictionary_list_to_node_set(partitions))
     dlist_A = partition_list_to_dictionary_list(A)
     M_A = build_distance_matrix(dlist_A)
@@ -411,18 +411,18 @@ def step_length_tally(matrix, path):
     
 #
 def blobs():
-    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([4,4], 4, 1000 , True, True))
+    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([8,8], 4, 4 , False, True))
     tree_partitions_cleaned = list(set([frozenset(x) for x in tree_partitions]))
     print(len(tree_partitions_cleaned))
-    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((20,20), 4, 3000))
+    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((8,8), 4, 3000))
     boundary_partitions_cleaned = list(set([frozenset(x) for x in boundary_partitions]))
     print("building")
     tree_matrix = cb.partitions_to_distance(tree_partitions_cleaned, md.shared_information_distance)
     print("next")
     boundary_matrix = cb.partitions_to_distance(boundary_partitions_cleaned, md.shared_information_distance)
     print("q")
-    plt.hist(tree_matrix.flatten(),color = 'g')
-    plt.hist(boundary_matrix.flatten(),color = 'b')
-    
+    plt.hist([tree_matrix.flatten(), boundary_matrix.flatten()], color = ['g','b'], label = ["random trees", "random walk"])
+    plt.legend(loc = 'upper right')
+    plt.show()
     #TODO -- make a script that automates this and makes a folder with all the images and data and info about 
     #the stuf...

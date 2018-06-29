@@ -20,7 +20,7 @@ def partition_entropy(partition):
     area_ratios = [len(part)/number_of_units for part in partition]
     #print(area_ratios)
     #return sum([-(prob * np.log(prob)) for prob in area_ratios])
-    return -np.dot(area_ratios,log(area_ratios))
+    return -np.dot(area_ratios,np.log(area_ratios))
 
 def partition_sqent(partition):
     """Returns the entropy of a partition"""

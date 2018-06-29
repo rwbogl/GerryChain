@@ -302,7 +302,7 @@ def tree_walk(grid_size, k_part, steps = 100, MH = True, equi = False):
     e = list(T.edges())[0:k_part - 1]
     visited_partitions = []
     for i in range(steps):
-        new = MH_step(G, T, e, equi, MH)
+        new = MH_step(G, T, e, True, False)
         #This is the step that takes in the graph G, the spanning tree T, 
         #and the list of edges e that we are currently planning to delete.
         T = new[0]

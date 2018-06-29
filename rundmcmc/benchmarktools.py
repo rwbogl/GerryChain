@@ -411,7 +411,7 @@ def step_length_tally(matrix, path):
     
 #
 def blobs():
-    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([20,20], 4, 3000 , True, False))
+    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([4,4], 4, 100 , True, False))
     tree_partitions_cleaned = list(set([frozenset(x) for x in tree_partitions]))
     print(len(tree_partitions_cleaned))
     boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((20,20), 4, 3000))

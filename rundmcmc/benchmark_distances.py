@@ -29,7 +29,7 @@ def common_refinement(partition1, partition2):
     coord_to_values_dict = dict()
 
     for assignment1, assignment2 in product(set(partition1.values()), set(partition2.values())):
-        coord_to_values_dict[(assignmen1,assignment2)] = i
+        coord_to_values_dict[(assignment1,assignment2)] = i
         i += 1 
 
     for node in keys:

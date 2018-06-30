@@ -27,6 +27,10 @@ import chain_to_benchmark as cb
 
 import random
 
+
+partition_bad1 = 1
+partition_bad2 = 1
+
 def common_refinement(d1,d2):
     if set(d1.keys()) != set(d2.keys()):
         return "Keys do not match!"
@@ -432,5 +436,5 @@ def blobs():
     #the stuf...
 
 def dispersion():
-    
+    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([10,10], 4, 100 , False, 50 ))
     

@@ -49,8 +49,9 @@ def build_distance_matrix(partitions, function):
     n = len(partitions)
     M = np.zeros([n,n])
     for i in range(n):
-        for j in range(n):
+        for j in range(i+1,n):
             M[i][j] = function(partitions[i], partitions[j])
+            M[j][i] = M[i][j]
     return M
 
 def partitions_to_distance(partition_list, distance_function):

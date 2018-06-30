@@ -147,6 +147,18 @@ def R_all(G,T,n):
     for e in itertools.combinations(T_edges, n):
         partitions.append(R(G,T,list(e)))
     return partitions
+
+def R_sample(G,T,n,m):
+    T_edges = set(T.edges())
+    partitions = []
+    
+    iteration = random.sample(itertools.combinations(T_edges, n), m)
+    
+    for e in iteration:
+        partitions.append(R(G,T,list(e)))
+    return partitions
+
+    
 #
 #def best_edge_for_equipartition(G,T):
 #    list_of_edges = list(T.edges())
@@ -303,7 +315,7 @@ def TV(p,q):
     return total_variation
 #h1, A, partitions = test([2,3], 3)
     
-def tree_walk(grid_size, k_part, steps = 100, MH = True, get_all = True):
+def tree_walk(grid_size, k_part, steps = 100, MH = True, how_many = 'one'):
     G = nx.grid_graph(grid_size)
     ##Tree walks:
     T = random_spanning_tree(G)
@@ -315,10 +327,13 @@ def tree_walk(grid_size, k_part, steps = 100, MH = True, get_all = True):
         #and the list of edges e that we are currently planning to delete.
         T = new[0]
         e = new[1]
-        if get_all == False:
+        if how_many == 1:
             visited_partitions.append(R(G,T))
-        if get_all == True:
+        if how_many == 'all':
             T = random_spanning_tree(G)
             visited_partitions += R_all(G,T, k_part)
+        if (how_many != 1) and type(how_many = int):
+            T = random_spanning_tree(G)
+            visited_partitions += R_sample(G,T, k_part, how_many)
         
     return visited_partitions

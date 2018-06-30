@@ -25,6 +25,8 @@ import benchmark_tests
 import metagraph_distances as md
 import chain_to_benchmark as cb
 
+import random
+
 def common_refinement(d1,d2):
     if set(d1.keys()) != set(d2.keys()):
         return "Keys do not match!"
@@ -411,10 +413,11 @@ def step_length_tally(matrix, path):
     
 #
 def blobs():
-    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([8,8], 4, 4 , False, True))
+    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([10,10], 4, 10 , False, True))
     tree_partitions_cleaned = list(set([frozenset(x) for x in tree_partitions]))
+    tree_partitions_cleaned = random.sample(tree_partitions_cleaned, 5000)
     print(len(tree_partitions_cleaned))
-    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((8,8), 4, 3000))
+    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((10,10), 4, 5000))
     boundary_partitions_cleaned = list(set([frozenset(x) for x in boundary_partitions]))
     print("building")
     tree_matrix = cb.partitions_to_distance(tree_partitions_cleaned, md.shared_information_distance)
@@ -426,3 +429,7 @@ def blobs():
     plt.show()
     #TODO -- make a script that automates this and makes a folder with all the images and data and info about 
     #the stuf...
+
+def dispersion():
+    
+    

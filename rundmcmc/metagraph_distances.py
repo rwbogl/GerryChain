@@ -15,7 +15,8 @@ def common_refinement(partition1, partition2):
         refinement.remove(frozenset())
     except:
         #There's a bug here! This should never happen, but it does...
-        print(frozenset() in refinement)
+        print("FROZEN SET", frozenset() in refinement)
+        print("SET", set() in refinement)
         print(len(partition1), len(partition2))
         print( [len(x) for x in partition1 ])
         print( [len(x) for x in partition2])

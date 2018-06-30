@@ -422,7 +422,7 @@ def blobs():
     tree_partitions_cleaned = list(set([frozenset(x) for x in tree_partitions]))
     tree_partitions_cleaned = random.sample(tree_partitions_cleaned, 5000)
     print(len(tree_partitions_cleaned))
-    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((10,10), 4, 5000))
+    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((10,10), 4, 10000))
     boundary_partitions_cleaned = list(set([frozenset(x) for x in boundary_partitions]))
     print("building")
     tree_matrix = cb.partitions_to_distance(tree_partitions_cleaned, md.shared_information_distance)
@@ -436,5 +436,9 @@ def blobs():
     #the stuf...
 
 def dispersion():
-    tree_partitions = treetools.subgraph_to_node(treetools.tree_walk([10,10], 4, 100 , False, 50 ))
+    m = 10
+    G = nx.grid_graph([m,m])
+    tree_partitions = treetools.random_equi_partition_trees(G, 4, 1000)
+    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((m,m), 4, 10000))
+    
     

@@ -159,26 +159,26 @@ def R_sample(G,T,n,m):
     return partitions
 
     
-#
-#def best_edge_for_equipartition(G,T):
-#    list_of_edges = list(T.edges())
-#    best = 0
-#    candidate = 0
-#    for e in list_of_edges:
-#        score = equi_score_tree_edge_pair(G,T,e)
-#        if score > best:
-#            best = score
-#            candidate = e
-#    return [candidate, best]
-#
-#def equi_score_tree_edge_pair(G,T,e):
-#    T.remove_edges_from([e])
-#    components = list(nx.connected_components(T))
-#    T.add_edges_from([e])
-#    A = len(components[0])
-#    B = len(components[1])
-#    x =  np.min([A / (A + B), B / (A + B)])
-#    return x
+
+def best_edge_for_equipartition(G,T):
+    list_of_edges = list(T.edges())
+    best = 0
+    candidate = 0
+    for e in list_of_edges:
+        score = equi_score_tree_edge_pair(G,T,e)
+        if score > best:
+            best = score
+            candidate = e
+    return [candidate, best]
+
+def equi_score_tree_edge_pair(G,T,e):
+    T.remove_edges_from([e])
+    components = list(nx.connected_components(T))
+    T.add_edges_from([e])
+    A = len(components[0])
+    B = len(components[1])
+    x =  np.min([A / (A + B), B / (A + B)])
+    return x
 
 ###Metropolis-Hastings tools
     
@@ -199,26 +199,6 @@ def propose_step(G,T):
 #    print(U.edges())
     return U
     
-#def best_edge_for_equipartition(G,T):
-#    list_of_edges = list(T.edges())
-#    best = 0
-#    candidate = 0
-#    for e in list_of_edges:
-#        score = equi_score_tree_edge_pair(G,T,e)
-#        if score > best:
-#            #print(best)
-#            best = score
-#            candidate = e
-#    return [candidate, best]
-#
-#def equi_score_tree_edge_pair(G,T,e):
-#    T.remove_edges_from([e])
-#    components = list(nx.connected_components(T))
-#    T.add_edges_from([e])
-#    A = len(components[0])
-#    B = len(components[1])
-#    x =  np.min([A / (A + B), B / (A + B)])
-#    return x
 
 def MH_step(G, T,e, equi = False, MH = True):
     n = len(e)
@@ -315,14 +295,18 @@ def TV(p,q):
     return total_variation
 #h1, A, partitions = test([2,3], 3)
     
-def tree_walk(grid_size, k_part, steps = 100, MH = True, how_many = 'one'):
+def tree_walk(grid_size, k_part, steps = 100, MH = True, how_many = 'one', demand_equi = False):
     G = nx.grid_graph(grid_size)
     ##Tree walks:
     T = random_spanning_tree(G)
     e = list(T.edges())[0:k_part - 1]
     visited_partitions = []
     for i in range(steps):
-        new = MH_step(G, T, e, False, MH)
+        if demand_equi == True:
+            #new = Equi_Step(G,T,e, False, MH)
+            print("You haven't set this up yet!")
+        if demand_equi == False:
+            new = MH_step(G, T, e, False, MH)
         #This is the step that takes in the graph G, the spanning tree T, 
         #and the list of edges e that we are currently planning to delete.
         T = new[0]
@@ -337,3 +321,54 @@ def tree_walk(grid_size, k_part, steps = 100, MH = True, how_many = 'one'):
             visited_partitions += R_sample(G,T, k_part, how_many)
         
     return visited_partitions
+
+def random_equi_partition_trees(graph, k_part, number = 100):
+    equi_partitions = [] 
+    counter = 0
+    while len(equi_partitions) < number:
+        counter += 1
+        T = random_spanning_tree(graph)
+        e = equi_partition(T, 4)
+        if e != False:
+            print(len(equi_partitions), "waiting time:", counter)
+            equi_partitions.append( R(graph, T, e) )
+            counter = 0
+    return equi_partitions
+    
+def equi_partition(T, num_blocks):
+    #Returns the partition if T can give an equi partition in num_blocks,
+    #Else return false
+    
+    #Currently this is hard coded for 4 partitions -- but there shold be a good
+    #and scalable algorithm
+    if num_blocks == 4:
+        e = equi_split(T)
+        if e == False:
+            return False
+        if e != False:
+            T.remove_edges_from([e])
+            components = list(nx.connected_component_subgraphs(T))
+            T.add_edges_from([e])
+            e1 = equi_split(components[0])
+            if e1 == False:
+                return False
+            e2 = equi_split(components[1])
+            if e2 == False:
+                return False
+    return [e, e1, e2]
+
+def equi_split(T):
+    #Returns the partition if T can be split evenly in two
+    #Else returns False
+    T_edges = T.edges()
+    for e in T_edges:
+        T.remove_edges_from([e])
+        components = list(nx.connected_components(T))
+        T.add_edges_from([e])
+        A = len(components[0])
+        B = len(components[1])
+        if A == B:
+            return e
+    return False
+    
+    

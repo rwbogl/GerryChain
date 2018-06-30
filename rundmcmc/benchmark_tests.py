@@ -63,13 +63,13 @@ def dictionary_list_to_node_set(dictionary_list):
 
 #####################
 
-def chain_test(grid_size, k_part, steps = 100):
+def chain_test(grid_size, k_part, steps = 100, equi = False):
     from naive_graph_partitions import k_connected_graph_partitions
     k_part = 4
     grid = Grid(grid_size)
     G = grid.graph
     A = list(k_connected_graph_partitions(G, k_part))
-    partitions = read_chain(grid, steps)
+    partitions = read_chain(grid, steps, equi)
     
     histogram = make_histogram(A, dictionary_list_to_node_set(partitions))
     
@@ -79,10 +79,10 @@ def chain_test(grid_size, k_part, steps = 100):
     print("total variation", total_variation)
     return [histogram, A, partitions]
 
-def chain_walk(grid_size, k_part, steps = 100):
+def chain_walk(grid_size, k_part, steps = 100, equi = False):
     k_part = 4
     grid = Grid(grid_size)
-    partitions = read_chain(grid, steps)
+    partitions = read_chain(grid, steps, equi)
     return partitions
 #new = chain_test(3,3)
     

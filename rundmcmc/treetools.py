@@ -83,12 +83,14 @@ def random_spanning_tree(G):
     T.add_edges_from(T_edges)
     return T
 
+def random_spanning_tree_wilson(G):
+    #The David Wilson random spanning tree algorithm
+    
+    return T
 #####For lifting:
 
 def cut_edges(G, G_A,G_B):
     #Finds the edges in G from G_A to G_B
-    
-
     edges_of_G = list(G.edges())
 
     list_of_cut_edges = []

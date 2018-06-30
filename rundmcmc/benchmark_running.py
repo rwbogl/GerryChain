@@ -3,12 +3,12 @@ from rundmcmc.grid import Grid
 
 from rundmcmc.chain import MarkovChain
 from rundmcmc.proposals import propose_random_flip
-from rundmcmc.validity import Validator, contiguous, no_vanishing_districts
+from rundmcmc.validity import Validator, contiguous, no_vanishing_districts, districts_within_tolerance
 from rundmcmc.accept import always_accept
 import numpy as np
 
-def read_chain(graph, iterations):
-  is_valid = Validator([contiguous,no_vanishing_districts])
+def read_chain(graph, iterations, equi = False):
+  is_valid = Validator([contiguous,no_vanishing_districts,districts_within_tolerance ])
   chain = MarkovChain(propose_random_flip, is_valid, always_accept, graph, total_steps = iterations)
   partitions = []
   

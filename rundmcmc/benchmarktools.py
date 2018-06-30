@@ -27,6 +27,8 @@ import chain_to_benchmark as cb
 
 import random
 
+import networkx as nx
+
 
 partition_bad1 = 1
 partition_bad2 = 1
@@ -439,6 +441,21 @@ def dispersion():
     m = 10
     G = nx.grid_graph([m,m])
     tree_partitions = treetools.random_equi_partition_trees(G, 4, 1000)
-    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((m,m), 4, 10000))
+    tree_partitions_as_nodes = treetools.subgraph_to_node(tree_partitions)
+    tree_partitions_cleaned = list(set([frozenset(x) for x in tree_partitions_as_nodes]))
+    #RMK: When I ran this every single partition was different... which isnot suprising.
+    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((m,m), 4, 10000, equi = True))
+    boundary_partitions_cleaned = list(set([frozenset(x) for x in boundary_partitions]))
+    distances = {}
+    for t in tree_partitions_cleaned:
+        best = np.inf
+        for x in boundary_partitions_cleaned:
+            d = md.shared_information_distance(t,x)
+            if d < best:
+                best = d
+        distances[t] = best
+    plt.hist(distances.values())
     
+    #Something to do -- for each of these tree partitions, start the chain there...
+                
     

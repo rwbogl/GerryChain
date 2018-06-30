@@ -11,15 +11,10 @@ partition_bad = 1
 def common_refinement(partition1, partition2):
     global partition_bad1, partition_bad2
     refinement = {part1.intersection(part2) for part1 in partition1 for part2 in partition2}
-    try:
+    if frozenset() in refinement:
         refinement.remove(frozenset())
-    except:
-        #There's a bug here! This should never happen, but it does...
-        print("FROZEN SET", frozenset() in refinement)
-        print("SET", set() in refinement)
-        print(len(partition1), len(partition2))
-        print( [len(x) for x in partition1 ])
-        print( [len(x) for x in partition2])
+        #Note that if each part in partitoin1 intersect each part in partition2
+        #then there is never the emptyset in the intersection.
     #print(len(set().union(*refinement)))
     #print([len(set) for set in refinement])
     return refinement

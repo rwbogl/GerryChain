@@ -152,7 +152,7 @@ def R_sample(G,T,n,m):
     T_edges = set(T.edges())
     partitions = []
     
-    iteration = random.sample(itertools.combinations(T_edges, n), m)
+    iteration = random.sample(list(itertools.combinations(T_edges, n)), m)
     
     for e in iteration:
         partitions.append(R(G,T,list(e)))
@@ -332,7 +332,7 @@ def tree_walk(grid_size, k_part, steps = 100, MH = True, how_many = 'one'):
         if how_many == 'all':
             T = random_spanning_tree(G)
             visited_partitions += R_all(G,T, k_part)
-        if (how_many != 1) and type(how_many = int):
+        if (how_many != 1) and (type(how_many) == int):
             T = random_spanning_tree(G)
             visited_partitions += R_sample(G,T, k_part, how_many)
         

@@ -444,7 +444,7 @@ def dispersion():
     tree_partitions_as_nodes = treetools.subgraph_to_node(tree_partitions)
     tree_partitions_cleaned = list(set([frozenset(x) for x in tree_partitions_as_nodes]))
     #RMK: When I ran this every single partition was different... which isnot suprising.
-    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((m,m), 4, 10000, equi = True))
+    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((m,m), 4, 100000, equi = True))
     boundary_partitions_cleaned = list(set([frozenset(x) for x in boundary_partitions]))
     distances = {}
     for t in tree_partitions_cleaned:
@@ -455,6 +455,19 @@ def dispersion():
                 best = d
         distances[t] = best
     plt.hist(distances.values())
+    np.max(list(distances.values))
+    
+#    np.max(list(distances.values()))
+#    Out[135]: 1.5281529653618517
+    #What is the diameter of the space of almost equi-partitions? When they are independent.
+    #100 blocks, into 4 of size roughly 25. When independent and equi, is 2H(X) + 2H(Y) = 4H(X)
+    #H(X) = log(4) 
+    
+    #4 * np.log(4) = Out[138]: 5.545177444479562
+    
+    #After a 100000 step walk:
+#    np.max(list(distances.values()))
+#    Out[145]: 1.2718290674037833
     
     #Something to do -- for each of these tree partitions, start the chain there...
                 

@@ -438,25 +438,40 @@ def blobs():
     #the stuf...
 
 def dispersion():
-    m = 10
+    m = 8
     G = nx.grid_graph([m,m])
-    tree_partitions = treetools.random_equi_partition_trees(G, 4, 1000)
+    tree_partitions = treetools.random_equi_partition_trees(G, 4, 4000)
     tree_partitions_as_nodes = treetools.subgraph_to_node(tree_partitions)
     tree_partitions_cleaned = list(set([frozenset(x) for x in tree_partitions_as_nodes]))
+    tree_matrix = cb.partitions_to_distance(tree_partitions_cleaned, md.shared_information_distance)
     #RMK: When I ran this every single partition was different... which isnot suprising.
+    print(np.max(list(tree_matrix.flatten())))
     boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((m,m), 4, 100000, equi = True))
     boundary_partitions_cleaned = list(set([frozenset(x) for x in boundary_partitions]))
-    distances = {}
-    for t in tree_partitions_cleaned:
-        best = np.inf
-        for x in boundary_partitions_cleaned:
-            d = md.shared_information_distance(t,x)
-            if d < best:
-                best = d
-        distances[t] = best
-    plt.hist(distances.values())
-    np.max(list(distances.values))
     
+    saddest_tree = []
+    
+    for M in [1000,5000,10000,50000,100000]:
+    
+        distances = {}
+        for t in tree_partitions_cleaned:
+            best = np.inf
+            for x in boundary_partitions_cleaned[0:M]:
+                d = md.shared_information_distance(t,x)
+                if d < best:
+                    best = d
+            distances[t] = best
+        
+        saddest_tree.append(np.max(list(distances.values)))
+        
+#    plt.hist([tree_matrix.flatten(), list(distances.values())], normed = 1, color = ['g','b'], label = ["random trees", "distance from tree to walk"])
+#    tree_spacing = set(tree_matrix.flatten())
+#    tree_spacing.remove(0)
+#    tree_spacing = list(tree_spacing)
+#    np.mean(tree_spacing)
+#    print(np.min(list(tree_spacing)))
+    #print(np.min(list(tree_spacing)))
+#0.3350547208408643
 #    np.max(list(distances.values()))
 #    Out[135]: 1.5281529653618517
     #What is the diameter of the space of almost equi-partitions? When they are independent.

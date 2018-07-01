@@ -330,7 +330,7 @@ def random_equi_partition_trees(graph, k_part, number = 100):
     while len(equi_partitions) < number:
         counter += 1
         T = random_spanning_tree(graph)
-        e = equi_partition(T, 4)
+        e = equi_partition(T, k_part)
         if e != False:
             print(len(equi_partitions), "waiting time:", counter)
             equi_partitions.append( R(graph, T, e) )

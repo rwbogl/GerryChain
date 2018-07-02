@@ -357,6 +357,8 @@ def equi_partition(T, num_blocks):
             e2 = equi_split(components[1])
             if e2 == False:
                 return False
+    else:
+        print("you didn't set up functionality for more than 4 partitions yet!")
     return [e, e1, e2]
 
 def equi_split(T):

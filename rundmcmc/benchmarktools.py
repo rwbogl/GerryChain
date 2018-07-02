@@ -438,20 +438,22 @@ def blobs():
     #the stuf...
 
 def dispersion():
-    m = 8
+    m = 12
     G = nx.grid_graph([m,m])
-    tree_partitions = treetools.random_equi_partition_trees(G, 4, 4000)
+    tree_partitions = treetools.random_equi_partition_trees(G, 4, 20)
     tree_partitions_as_nodes = treetools.subgraph_to_node(tree_partitions)
     tree_partitions_cleaned = list(set([frozenset(x) for x in tree_partitions_as_nodes]))
     tree_matrix = cb.partitions_to_distance(tree_partitions_cleaned, md.shared_information_distance)
     #RMK: When I ran this every single partition was different... which isnot suprising.
     print(np.max(list(tree_matrix.flatten())))
-    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((m,m), 4, 100000, equi = True))
+    #It's not at all suprising that the diameter of this image is smaller than the diameter of the whole space...
+    #Wait,,actually it is suprising... 
+    boundary_partitions = benchmark_tests.dictionary_list_to_node_set(benchmark_tests.chain_walk((m,m), 4, 10000, equi = True))
     boundary_partitions_cleaned = list(set([frozenset(x) for x in boundary_partitions]))
     
     saddest_tree = []
     
-    for M in [1000,5000,10000,50000,100000]:
+    for M in [1000,5000,10000]:
     
         distances = {}
         for t in tree_partitions_cleaned:
@@ -486,4 +488,6 @@ def dispersion():
     
     #Something to do -- for each of these tree partitions, start the chain there...
                 
-    
+##Comments -- for the 20x20 -- the bottle neck is the time to create a new spanning tree
+    #if we use the sandpile group method, perhaps we can put all that time into determining th eSNF
+    #then draw individual spanning trees fast

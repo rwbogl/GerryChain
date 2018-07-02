@@ -28,8 +28,8 @@ def log_number_trees(G, weight = False):
     splumatrix = scipy.sparse.linalg.splu(m)
     diag_L = np.diag(splumatrix.L.A)
     diag_U = np.diag(splumatrix.U.A)
-    S_log_L = [np.log(s) for s in diag_L]
-    S_log_U = [np.log(s) for s in diag_U]
+    S_log_L = [np.log(np.abs(s)) for s in diag_L]
+    S_log_U = [np.log(np.abs(s)) for s in diag_U]
     LU_prod = np.sum(S_log_U) + np.sum(S_log_L)
     return  LU_prod
 

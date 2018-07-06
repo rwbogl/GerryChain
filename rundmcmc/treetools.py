@@ -77,10 +77,12 @@ def forward_tree(G,a):
 
 def random_spanning_tree(G):
     #It's going to be faster to use the David Wilson algorithm here instead.
-    T_edges = forward_tree(G, random.choice(list(G.nodes())))
-    T = nx.Graph()
+    root = random.choice(list(G.nodes()))
+    T_edges = forward_tree(G, root)
+    T = nx.DiGraph()
     T.add_nodes_from(list(G.nodes()))
     T.add_edges_from(T_edges)
+
     return T
 
 def random_spanning_tree_wilson(G):
@@ -137,7 +139,7 @@ def random_lift(G, subgraphs):
     
 def R(G,T,edge_list):
     T.remove_edges_from(edge_list)
-    components = list(nx.connected_components(T))
+    components = list(nx.weakly_connected_components(T))
     T.add_edges_from(edge_list)
     subgraphs = [nx.induced_subgraph(G, A) for A in components]
     return subgraphs
@@ -332,15 +334,15 @@ def random_equi_partition_trees(graph, k_part, number = 100):
         T = random_spanning_tree(graph)
         e = equi_partition(T, k_part)
         if e != False:
-            print(len(equi_partitions), "waiting time:", counter)
+            print(len(equi_partitions), "waiting time:", counter, file=sys.stderr)
             equi_partitions.append( R(graph, T, e) )
             counter = 0
     return equi_partitions
-    
+
 def equi_partition(T, num_blocks):
     #Returns the partition if T can give an equi partition in num_blocks,
     #Else return false
-    
+
     #Currently this is hard coded for 4 partitions -- but there shold be a good
     #and scalable algorithm
     if num_blocks == 4:
@@ -349,7 +351,7 @@ def equi_partition(T, num_blocks):
             return False
         if e != False:
             T.remove_edges_from([e])
-            components = list(nx.connected_component_subgraphs(T))
+            components = list(nx.weakly_connected_component_subgraphs(T))
             T.add_edges_from([e])
             e1 = equi_split(components[0])
             if e1 == False:
@@ -361,18 +363,64 @@ def equi_partition(T, num_blocks):
         print("you didn't set up functionality for more than 4 partitions yet!")
     return [e, e1, e2]
 
+
 def equi_split(T):
-    #Returns the partition if T can be split evenly in two
-    #Else returns False
-    T_edges = T.edges()
-    for e in T_edges:
-        T.remove_edges_from([e])
-        components = list(nx.connected_components(T))
-        T.add_edges_from([e])
-        A = len(components[0])
-        B = len(components[1])
-        if A == B:
-            return e
+    # Returns the partition if T can be split evenly in two
+    # Else returns False
+    label_weights(T)
+    edge, weight = choose_best_weight(T)
+
+    if weight == len(T) // 2:
+        return edge
+
     return False
-    
-    
+
+
+def label_weights(graph):
+    """Label nodes of of a directed, rooted tree by their weights.
+
+    :graph: NetworkX DiGraph.
+    :returns: Nothing.
+
+    The "weight" of a node is the size of the subtree rooted at itself.
+
+    """
+    def _label_weights(node):
+        in_edges = graph.in_edges(node)
+
+        if not in_edges:
+            graph.nodes[node]["weight"] = 1
+            return 1
+
+        child_weights = [_label_weights(child) for child, _ in in_edges]
+
+        weight = sum(child_weights) + 1
+        graph.nodes[node]["weight"] = weight
+
+        return weight
+
+    root = [node for node in graph if graph.out_degree(node) == 0][0]
+    _label_weights(root)
+
+
+def choose_best_weight(graph):
+    """Choose out edge from node with weight closest to n_nodes / 2.
+
+    :graph: NetworkX Graph labeled by :func:`~label_weights`.
+    :returns: Tuple (edge, weight).
+
+    """
+
+    best_node = None
+    best_difference = float("inf")
+
+    for node in graph:
+        diff = abs(len(graph) / 2 - graph.nodes[node]["weight"])
+        if diff < best_difference:
+            best_node = node
+            best_difference = diff
+
+    edge = list(graph.edges(best_node))[0]
+    weight = graph.nodes[best_node]["weight"]
+
+    return (edge, weight)

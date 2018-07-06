@@ -405,7 +405,7 @@ def label_weights(graph):
 
 
 def choose_best_weight(graph):
-    """Choose out edge from node with weight closest to n_nodes / 2.
+    """Choose edge from graph with weight closest to n_nodes / 2.
 
     :graph: NetworkX Graph labeled by :func:`~label_weights`.
     :returns: Tuple (edge, weight).

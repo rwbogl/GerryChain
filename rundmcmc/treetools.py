@@ -13,6 +13,7 @@ import scipy.linalg
 from scipy.sparse import csc_matrix
 import scipy
 from scipy import array, linalg, dot
+import sys
 #from naive_graph_partitions import k_connected_graph_partitions
 
 ######Tree counting

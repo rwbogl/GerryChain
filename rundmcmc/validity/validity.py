@@ -1,9 +1,8 @@
 import collections
 import logging
 import random
-
 import networkx as nx
-import networkx.algorithms.shortest_paths.weighted as nx_path
+from networkx.algorithms.shortest_paths.weighted import single_source_dijkstra
 from networkx import NetworkXNoPath
 
 from rundmcmc.updaters import CountySplit
@@ -115,9 +114,7 @@ def single_flip_contiguous(partition):
         return 1
 
     for changed_node in flips.keys():
-        old_neighbors = []
         old_assignment = parent.assignment[changed_node]
-
         old_neighbors = [node for node in graph.neighbors(changed_node)
                          if assignment[node] == old_assignment]
 
@@ -130,8 +127,8 @@ def single_flip_contiguous(partition):
 
         for neighbor in old_neighbors:
             try:
-                distance, _ = nx_path.single_source_dijkstra(graph, start_neighbor, neighbor,
-                                                             weight=partition_edge_weight)
+                distance, _ = single_source_dijkstra(graph, start_neighbor, neighbor,
+                                                     weight=partition_edge_weight)
                 if not (distance < float("inf")):
                     return False
             except NetworkXNoPath:

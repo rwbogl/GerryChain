@@ -23,9 +23,10 @@ class Partition:
                    which the functions compute.
 
         """
-        if parent:
+        # We almost always have a parent, so just try that first!
+        try:
             self._from_parent(parent, flips)
-        else:
+        except AttributeError:
             self._first_time(graph, assignment, updaters)
 
         self._update()

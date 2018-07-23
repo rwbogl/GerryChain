@@ -33,12 +33,7 @@ class Validator:
 
         """
         # check each constraint function and fail when a constraint test fails
-        for constraint in self.constraints:
-            if not constraint(partition):
-                return False
-
-        # all constraints are satisfied
-        return True
+        return all(constraint(partition) for constraint in self.constraints)
 
 
 def L1_reciprocal_polsby_popper(partition):
